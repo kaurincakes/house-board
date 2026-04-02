@@ -39,6 +39,8 @@
     --health-acc: #e040fb;
     --dinner: #2e1a0d;
     --dinner-acc: #ffb347;
+    --tasks: #2e1a0a;
+    --tasks-acc: #ff7043;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -166,7 +168,7 @@
   /* ── ROWS ── */
   .rows {
     flex: 1;
-    overflow: hidden;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
   }
@@ -195,6 +197,7 @@
   .row.cat-chores::before  { background: var(--chores-acc); box-shadow: 0 0 8px var(--chores-acc); }
   .row.cat-health::before  { background: var(--health-acc); box-shadow: 0 0 8px var(--health-acc); }
   .row.cat-dinner::before  { background: var(--dinner-acc); box-shadow: 0 0 8px var(--dinner-acc); }
+  .row.cat-tasks::before   { background: var(--tasks-acc);  box-shadow: 0 0 8px var(--tasks-acc); }
 
   .row.done { background: var(--done-bg); opacity: 0.45; }
   .row.urgent { background: rgba(255,45,155,0.05); }
@@ -255,6 +258,7 @@
   .badge-chores  { background: var(--chores);  color: var(--chores-acc);  border-color: var(--chores-acc); }
   .badge-health  { background: var(--health);  color: var(--health-acc);  border-color: var(--health-acc); }
   .badge-dinner  { background: var(--dinner);  color: var(--dinner-acc);  border-color: var(--dinner-acc); }
+  .badge-tasks   { background: var(--tasks);   color: var(--tasks-acc);   border-color: var(--tasks-acc); }
 
   /* STATUS */
   .status-cell { text-align: center; font-size: 18px; }
@@ -401,10 +405,13 @@
   function tryFullscreen() {
     const el = document.documentElement;
     const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
-    if (req) req.call(el);
+    if (req) try { req.call(el); } catch(e) {}
   }
   window.addEventListener("load", () => setTimeout(tryFullscreen, 800));
   document.addEventListener("click", tryFullscreen, { once: true });
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) setTimeout(tryFullscreen, 500);
+  });
 </script>
 
 <!-- Firebase -->
@@ -480,7 +487,7 @@
   }
 
   function catLabel(c) {
-    return { school: 'SCHOOL', chores: 'CHORES', health: 'HEALTH/MEDS', dinner: "DINNER" }[c] || c.toUpperCase();
+    return { school: 'SCHOOL', chores: 'CHORES', health: 'HEALTH/MEDS', dinner: 'DINNER', tasks: 'TASKS' }[c] || c.toUpperCase();
   }
 
   // Clock
