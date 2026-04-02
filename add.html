@@ -33,6 +33,8 @@
     --chores-acc: #00e5a0;
     --health-acc: #e040fb;
     --dinner-acc: #ffb347;
+    --tasks: #2e1a0a;
+    --tasks-acc: #ff7043;
 
     --school-bg: #0d1f3c;
     --chores-bg: #0d2e1a;
@@ -169,11 +171,13 @@
   .cat-btn[data-cat="chores"]  .cat-name { color: var(--chores-acc); }
   .cat-btn[data-cat="health"]  .cat-name { color: var(--health-acc); }
   .cat-btn[data-cat="dinner"]  .cat-name { color: var(--dinner-acc); }
+  .cat-btn[data-cat="tasks"]   .cat-name { color: var(--tasks-acc); }
 
   .cat-btn.selected[data-cat="school"]  { background: var(--school-bg); border-color: var(--school-acc); box-shadow: 0 0 10px rgba(77,166,255,0.2); }
   .cat-btn.selected[data-cat="chores"]  { background: var(--chores-bg); border-color: var(--chores-acc); box-shadow: 0 0 10px rgba(0,229,160,0.2); }
   .cat-btn.selected[data-cat="health"]  { background: var(--health-bg); border-color: var(--health-acc); box-shadow: 0 0 10px rgba(224,64,251,0.2); }
   .cat-btn.selected[data-cat="dinner"]  { background: var(--dinner-bg); border-color: var(--dinner-acc); box-shadow: 0 0 10px rgba(255,179,71,0.2); }
+  .cat-btn.selected[data-cat="tasks"]   { background: var(--tasks);     border-color: var(--tasks-acc);  box-shadow: 0 0 10px rgba(255,112,67,0.2); }
 
   /* ── TEXT INPUT ── */
   .msg-wrap { margin-bottom: 20px; }
@@ -310,6 +314,7 @@
   .item-card.cat-chores::before { background: var(--chores-acc); }
   .item-card.cat-health::before { background: var(--health-acc); }
   .item-card.cat-dinner::before { background: var(--dinner-acc); }
+  .item-card.cat-tasks::before  { background: var(--tasks-acc); }
   .item-card.done-card { opacity: 0.38; }
 
   .item-who {
@@ -405,6 +410,10 @@
     <button class="cat-btn" data-cat="health">
       <span class="cat-name">HEALTH / MEDS</span>
       <span class="cat-desc">Meds, appointments, doctor</span>
+    </button>
+    <button class="cat-btn" data-cat="tasks">
+      <span class="cat-name">TASKS</span>
+      <span class="cat-desc">Calls, errands, one-off to-dos</span>
     </button>
     <button class="cat-btn" data-cat="dinner">
       <span class="cat-name">DINNER</span>
