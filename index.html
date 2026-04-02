@@ -396,6 +396,17 @@
   <div id="status-bar"><span class="dot-live"></span>LIVE</div>
 </footer>
 
+<!-- Fullscreen attempt -->
+<script>
+  function tryFullscreen() {
+    const el = document.documentElement;
+    const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+    if (req) req.call(el);
+  }
+  window.addEventListener('load', () => setTimeout(tryFullscreen, 800));
+  document.addEventListener('click', tryFullscreen, { once: true });
+</script>
+
 <!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
