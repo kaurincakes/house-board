@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The House Board</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #1a0a2e;
+    --bg2:      #210d38;
+    --panel:    #27103f;
+    --border:   #3d1f5c;
+    --glow:     #ff2d9b;
+    --pink:     #ff2d9b;
+    --pink-dim: #7a1449;
+    --magenta:  #e040fb;
+    --amber:    #ffb347;
+    --teal:     #00e5cc;
+    --lavender: #c77dff;
+    --coral:    #ff6b6b;
+    --text:     #f0e6ff;
+    --muted:    #7a6a99;
+    --done-bg:  #1e0f32;
+
+    --kacey:  #ff2d9b;
+    --matt:   #00e86b;
+    --emery:  #c77dff;
+    --miriam: #ffe135;
+    --noel:   #4da6ff;
+    --all:    #ffffff;
+    --granny: #9a9a9a;
+
+    --school: #0d1f3c;
+    --school-acc: #4da6ff;
+    --chores: #0d2e1a;
+    --chores-acc: #00e5a0;
+    --health: #2e0d2e;
+    --health-acc: #e040fb;
+    --dinner: #2e1a0d;
+    --dinner-acc: #ffb347;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Lava lamp blobs in background */
+  .blobs {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+    opacity: 0.18;
+  }
+
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    animation: float linear infinite;
+  }
+
+  .blob1 { width: 300px; height: 400px; background: var(--pink); left: -80px; animation-duration: 18s; animation-delay: 0s; }
+  .blob2 { width: 250px; height: 350px; background: var(--magenta); right: -60px; animation-duration: 22s; animation-delay: -7s; }
+  .blob3 { width: 200px; height: 280px; background: var(--teal); left: 40%; animation-duration: 26s; animation-delay: -12s; }
+  .blob4 { width: 180px; height: 240px; background: var(--amber); right: 20%; animation-duration: 20s; animation-delay: -4s; }
+
+  @keyframes float {
+    0%   { transform: translateY(110vh) scale(1); border-radius: 50%; }
+    25%  { border-radius: 45% 55% 50% 50%; }
+    50%  { transform: translateY(-20vh) scale(1.1); border-radius: 50% 45% 55% 48%; }
+    75%  { border-radius: 52% 48% 45% 55%; }
+    100% { transform: translateY(110vh) scale(1); border-radius: 50%; }
+  }
+
+  /* Scanlines */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px);
+    pointer-events: none;
+    z-index: 998;
+  }
+
+  /* Everything above blobs */
+  header, .col-heads, .rows, .ticker-bar, footer { position: relative; z-index: 1; }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px;
+    background: rgba(27, 10, 46, 0.85);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+    flex-shrink: 0;
+  }
+
+  .logo-wrap { display: flex; flex-direction: column; gap: 2px; }
+
+  .logo {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 26px;
+    letter-spacing: 6px;
+    color: var(--pink);
+    text-shadow: 0 0 20px rgba(255,45,155,0.6), 0 0 40px rgba(255,45,155,0.3);
+  }
+
+  .logo-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: var(--muted);
+  }
+
+  .header-right { text-align: right; }
+
+  #clock {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 3px;
+    text-shadow: 0 0 12px rgba(199,125,255,0.4);
+  }
+
+  #date {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 3px;
+    margin-top: 3px;
+  }
+
+  /* ── COLUMN HEADERS ── */
+  .col-heads {
+    display: grid;
+    grid-template-columns: 110px 1fr 130px 64px;
+    padding: 7px 28px;
+    background: rgba(33,13,56,0.9);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .col-head {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* ── ROWS ── */
+  .rows {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 110px 1fr 130px 64px;
+    padding: 0 28px;
+    border-bottom: 1px solid rgba(61,31,92,0.5);
+    align-items: center;
+    min-height: 66px;
+    position: relative;
+    transition: background 0.3s;
+  }
+
+  /* colored left bar */
+  .row::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 8px; bottom: 8px;
+    width: 4px;
+    border-radius: 0 2px 2px 0;
+  }
+
+  .row.cat-school::before  { background: var(--school-acc); box-shadow: 0 0 8px var(--school-acc); }
+  .row.cat-chores::before  { background: var(--chores-acc); box-shadow: 0 0 8px var(--chores-acc); }
+  .row.cat-health::before  { background: var(--health-acc); box-shadow: 0 0 8px var(--health-acc); }
+  .row.cat-dinner::before  { background: var(--dinner-acc); box-shadow: 0 0 8px var(--dinner-acc); }
+
+  .row.done { background: var(--done-bg); opacity: 0.45; }
+  .row.urgent { background: rgba(255,45,155,0.05); }
+
+  @keyframes flash-in {
+    from { background: rgba(255,45,155,0.15); }
+    to   { background: transparent; }
+  }
+  .row.new-item { animation: flash-in 2s ease-out forwards; }
+
+  /* WHO */
+  .who-cell {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 2px;
+    padding-left: 8px;
+  }
+
+  .who-ALL    { color: var(--all);    text-shadow: 0 0 10px rgba(255,255,255,0.4); }
+  .who-Kacey  { color: var(--kacey);  text-shadow: 0 0 10px rgba(255,45,155,0.5); }
+  .who-Matt   { color: var(--matt);   text-shadow: 0 0 10px rgba(0,232,107,0.5); }
+  .who-Emery  { color: var(--emery);  text-shadow: 0 0 10px rgba(199,125,255,0.5); }
+  .who-Miriam { color: var(--miriam); text-shadow: 0 0 10px rgba(255,225,53,0.5); }
+  .who-Noel   { color: var(--noel);   text-shadow: 0 0 10px rgba(77,166,255,0.5); }
+
+  /* REMINDER TEXT */
+  .reminder-text {
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.3;
+    padding: 12px 16px 12px 0;
+  }
+
+  .row.done .reminder-text {
+    text-decoration: line-through;
+    color: var(--muted);
+  }
+
+  .row.urgent .reminder-text {
+    color: var(--amber);
+  }
+
+  /* CATEGORY BADGE */
+  .cat-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 4px;
+    display: inline-block;
+    border: 1px solid;
+  }
+
+  .badge-school  { background: var(--school);  color: var(--school-acc);  border-color: var(--school-acc); }
+  .badge-chores  { background: var(--chores);  color: var(--chores-acc);  border-color: var(--chores-acc); }
+  .badge-health  { background: var(--health);  color: var(--health-acc);  border-color: var(--health-acc); }
+  .badge-dinner  { background: var(--dinner);  color: var(--dinner-acc);  border-color: var(--dinner-acc); }
+
+  /* STATUS */
+  .status-cell { text-align: center; font-size: 18px; }
+  .status-done { color: var(--teal); text-shadow: 0 0 8px var(--teal); }
+
+  @keyframes urgent-pulse { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
+  .status-urgent { color: var(--amber); animation: urgent-pulse 1s ease-in-out infinite; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .empty-big {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 42px;
+    font-weight: 900;
+    color: var(--pink);
+    text-shadow: 0 0 30px rgba(255,45,155,0.5);
+    letter-spacing: 6px;
+  }
+  .empty-small {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 3px;
+  }
+
+  /* TICKER */
+  .ticker-bar {
+    flex-shrink: 0;
+    border-top: 1px solid var(--pink-dim);
+    border-bottom: 1px solid var(--pink-dim);
+    background: rgba(122,20,73,0.2);
+    padding: 6px 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .ticker-inner {
+    display: inline-block;
+    animation: ticker 40s linear infinite;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--pink);
+    text-shadow: 0 0 8px rgba(255,45,155,0.4);
+  }
+
+  @keyframes ticker { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
+
+  /* FOOTER */
+  footer {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 28px;
+    background: rgba(27,10,46,0.9);
+    border-top: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+  }
+
+  .add-hint {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+
+  .add-hint strong {
+    color: var(--teal);
+    text-shadow: 0 0 6px rgba(0,229,204,0.4);
+  }
+
+  #status-bar {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+
+  .dot-live {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--teal);
+    border-radius: 50%;
+    margin-right: 6px;
+    box-shadow: 0 0 6px var(--teal);
+    animation: urgent-pulse 2s ease-in-out infinite;
+  }
+</style>
+</head>
+<body>
+
+<!-- Lava lamp blobs -->
+<div class="blobs">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+  <div class="blob blob4"></div>
+</div>
+
+<header>
+  <div class="logo-wrap">
+    <div class="logo">HOUSE BOARD</div>
+    <div class="logo-sub">◈ &nbsp; KACEY &nbsp;·&nbsp; MATT &nbsp;·&nbsp; EMERY &nbsp;·&nbsp; MIRIAM &nbsp;·&nbsp; NOEL</div>
+  </div>
+  <div class="header-right">
+    <div id="clock">--:--</div>
+    <div id="date">---</div>
+  </div>
+</header>
+
+<div class="col-heads">
+  <div class="col-head">Who</div>
+  <div class="col-head">Reminder</div>
+  <div class="col-head">Category</div>
+  <div class="col-head">Done</div>
+</div>
+
+<div class="rows" id="rows">
+  <div class="empty-state">
+    <div class="empty-big">ALL CLEAR</div>
+    <div class="empty-small">NO REMINDERS — CONNECTING...</div>
+  </div>
+</div>
+
+<div class="ticker-bar">
+  <span class="ticker-inner" id="ticker">◈ &nbsp; HOUSE BOARD &nbsp; ◈ &nbsp; LOADING...</span>
+</div>
+
+<footer>
+  <div class="add-hint">ADD REMINDERS → <strong>kaurincakes.github.io/house-board/add</strong></div>
+  <div id="status-bar"><span class="dot-live"></span>LIVE</div>
+</footer>
+
+<!-- Fullscreen attempt -->
+<script>
+  function tryFullscreen() {
+    const el = document.documentElement;
+    const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+    if (req) req.call(el);
+  }
+  window.addEventListener("load", () => setTimeout(tryFullscreen, 800));
+  document.addEventListener("click", tryFullscreen, { once: true });
+</script>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  // ── PASTE YOUR FIREBASE CONFIG HERE ──
+  const firebaseConfig = {
+    apiKey: "AIzaSyDcc6tdEzN7DXxNeH5ibXzCsjq3XXo9RFI",
+    authDomain: "house-board-8675309.firebaseapp.com",
+    databaseURL: "https://house-board-8675309-default-rtdb.firebaseio.com",
+    projectId: "house-board-8675309",
+    storageBucket: "house-board-8675309.firebasestorage.app",
+    messagingSenderId: "287523705989",
+    appId: "1:287523705989:web:d960b9020eb4cd5006c5ec"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const itemsRef = ref(db, 'items');
+
+  let knownIds = new Set();
+
+  onValue(itemsRef, (snapshot) => {
+    const data = snapshot.val() || {};
+    const items = Object.entries(data).map(([id, v]) => ({ id, ...v }));
+    render(items, knownIds);
+    items.forEach(i => knownIds.add(i.id));
+  });
+
+  function render(items, prevIds) {
+    const el = document.getElementById('rows');
+
+    if (items.length === 0) {
+      el.innerHTML = `<div class="empty-state">
+        <div class="empty-big">ALL CLEAR</div>
+        <div class="empty-small">NO REMINDERS — GO RELAX</div>
+      </div>`;
+      document.getElementById('ticker').textContent = '◈   ALL CLEAR — NO ACTIVE REMINDERS   ◈';
+      document.getElementById('status-bar').innerHTML = '<span class="dot-live"></span>LIVE · 0 ITEMS';
+      return;
+    }
+
+    const sorted = [...items].sort((a, b) => {
+      if (a.done !== b.done) return a.done ? 1 : -1;
+      if (b.urgent !== a.urgent) return b.urgent ? 1 : -1;
+      return b.ts - a.ts;
+    });
+
+    el.innerHTML = sorted.map(item => {
+      const isNew = !prevIds.has(item.id);
+      return `<div class="row cat-${item.cat}${item.done ? ' done' : ''}${item.urgent ? ' urgent' : ''}${isNew ? ' new-item' : ''}" data-id="${item.id}">
+        <div class="who-cell who-${item.who}">${item.who}</div>
+        <div class="reminder-text">${item.text}</div>
+        <div><span class="cat-badge badge-${item.cat}">${catLabel(item.cat)}</span></div>
+        <div class="status-cell">${item.done
+          ? '<span class="status-done">✓</span>'
+          : item.urgent
+            ? '<span class="status-urgent">⚠</span>'
+            : '<span style="color:var(--muted)">·</span>'}</div>
+      </div>`;
+    }).join('');
+
+    const active = items.filter(i => !i.done);
+    const tickerText = active.length
+      ? active.map(i => `[ ${i.who} ]  ${i.text}`).join('   ◈   ') + '   ◈   '
+      : '◈   ALL DONE — GREAT WORK EVERYONE   ◈   ';
+    document.getElementById('ticker').textContent = tickerText + tickerText;
+
+    const done = items.filter(i => i.done).length;
+    document.getElementById('status-bar').innerHTML = `<span class="dot-live"></span>LIVE · ${active.length} ACTIVE · ${done} DONE`;
+  }
+
+  function catLabel(c) {
+    return { school: 'SCHOOL', chores: 'CHORES', health: 'HEALTH/MEDS', dinner: "DINNER" }[c] || c.toUpperCase();
+  }
+
+  // Clock
+  function updateClock() {
+    const now = new Date();
+    let h = now.getHours(), m = now.getMinutes();
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    document.getElementById('clock').textContent = `${h}:${String(m).padStart(2,'0')} ${ampm}`;
+    const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    document.getElementById('date').textContent = `${days[now.getDay()]}  ${months[now.getMonth()]} ${now.getDate()}`;
+  }
+  updateClock();
+  setInterval(updateClock, 10000);
+</script>
+</body>
+</html>
