@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>House Board — Add</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #1a0a2e;
+    --bg2:      #210d38;
+    --panel:    #27103f;
+    --border:   #3d1f5c;
+    --pink:     #ff2d9b;
+    --pink-dim: #7a1449;
+    --magenta:  #e040fb;
+    --amber:    #ffb347;
+    --teal:     #00e5cc;
+    --lavender: #c77dff;
+    --coral:    #ff6b6b;
+    --text:     #f0e6ff;
+    --muted:    #7a6a99;
+
+    --kacey:  #ff2d9b;
+    --matt:   #00e86b;
+    --emery:  #c77dff;
+    --miriam: #ffe135;
+    --noel:   #4da6ff;
+    --all:    #ffffff;
+    --granny: #9a9a9a;
+
+    --school-acc: #4da6ff;
+    --chores-acc: #00e5a0;
+    --health-acc: #e040fb;
+    --dinner-acc: #ffb347;
+
+    --school-bg: #0d1f3c;
+    --chores-bg: #0d2e1a;
+    --health-bg: #2e0d2e;
+    --dinner-bg: #2e1a0d;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 48px;
+  }
+
+  /* blobs */
+  .blobs { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; opacity: 0.12; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(50px); animation: float linear infinite; }
+  .blob1 { width: 250px; height: 350px; background: var(--pink);    left: -60px;  animation-duration: 20s; }
+  .blob2 { width: 200px; height: 280px; background: var(--magenta); right: -40px; animation-duration: 26s; animation-delay: -8s; }
+  .blob3 { width: 160px; height: 220px; background: var(--teal);    left: 50%;    animation-duration: 30s; animation-delay: -14s; }
+  @keyframes float {
+    0%   { transform: translateY(110vh) scale(1); border-radius: 50%; }
+    50%  { transform: translateY(-20vh) scale(1.1); border-radius: 50% 45% 55% 48%; }
+    100% { transform: translateY(110vh) scale(1); border-radius: 50%; }
+  }
+
+  header {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px;
+    background: rgba(27,10,46,0.92);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+  }
+
+  .logo {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900; font-size: 18px; letter-spacing: 4px;
+    color: var(--pink);
+    text-shadow: 0 0 16px rgba(255,45,155,0.5);
+  }
+
+  .view-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px; letter-spacing: 2px; color: var(--muted);
+    text-decoration: none; border: 1px solid var(--border);
+    padding: 6px 12px; border-radius: 4px; background: var(--panel);
+  }
+
+  section {
+    position: relative; z-index: 1;
+    padding: 20px 20px 0;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px; letter-spacing: 3px; color: var(--muted);
+    text-transform: uppercase; margin-bottom: 12px;
+  }
+
+  /* ── WHO GRID ── */
+  .who-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .who-btn {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700; font-size: 13px; letter-spacing: 1px;
+    padding: 14px 6px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--panel);
+    cursor: pointer; text-align: center;
+    transition: all 0.15s;
+    line-height: 1;
+  }
+
+  .who-btn small {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-size: 7px; font-weight: 400;
+    letter-spacing: 1px; margin-top: 4px;
+    opacity: 0.5;
+  }
+
+  .who-btn[data-who="ALL"]    { color: var(--all); }
+  .who-btn[data-who="Kacey"]  { color: var(--kacey); }
+  .who-btn[data-who="Matt"]   { color: var(--matt); }
+  .who-btn[data-who="Emery"]  { color: var(--emery); }
+  .who-btn[data-who="Miriam"] { color: var(--miriam); }
+  .who-btn[data-who="Noel"]   { color: var(--noel); }
+  .who-btn[data-who="Granny"] { color: var(--granny); opacity: 0.5; }
+
+  .who-btn.selected[data-who="ALL"]    { border-color: var(--all);    background: rgba(255,255,255,0.08); box-shadow: 0 0 12px rgba(255,255,255,0.15); }
+  .who-btn.selected[data-who="Kacey"]  { border-color: var(--kacey);  background: rgba(255,45,155,0.12);  box-shadow: 0 0 14px rgba(255,45,155,0.3); }
+  .who-btn.selected[data-who="Matt"]   { border-color: var(--matt);   background: rgba(0,232,107,0.1);    box-shadow: 0 0 14px rgba(0,232,107,0.25); }
+  .who-btn.selected[data-who="Emery"]  { border-color: var(--emery);  background: rgba(199,125,255,0.1);   box-shadow: 0 0 14px rgba(255,225,53,0.25); }
+  .who-btn.selected[data-who="Miriam"] { border-color: var(--miriam); background: rgba(255,225,53,0.1);  box-shadow: 0 0 14px rgba(255,225,53,0.25); }
+  .who-btn.selected[data-who="Noel"]   { border-color: var(--noel);   background: rgba(77,166,255,0.1);  box-shadow: 0 0 14px rgba(77,166,255,0.25); }
+
+  /* ── CATEGORY GRID ── */
+  .cat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .cat-btn {
+    padding: 14px 12px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--panel);
+    cursor: pointer; text-align: left;
+    transition: all 0.15s;
+  }
+
+  .cat-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; letter-spacing: 2px; display: block; margin-bottom: 4px;
+  }
+
+  .cat-desc {
+    font-size: 11px; color: var(--muted); line-height: 1.3;
+  }
+
+  .cat-btn[data-cat="school"]  .cat-name { color: var(--school-acc); }
+  .cat-btn[data-cat="chores"]  .cat-name { color: var(--chores-acc); }
+  .cat-btn[data-cat="health"]  .cat-name { color: var(--health-acc); }
+  .cat-btn[data-cat="dinner"]  .cat-name { color: var(--dinner-acc); }
+
+  .cat-btn.selected[data-cat="school"]  { background: var(--school-bg); border-color: var(--school-acc); box-shadow: 0 0 10px rgba(77,166,255,0.2); }
+  .cat-btn.selected[data-cat="chores"]  { background: var(--chores-bg); border-color: var(--chores-acc); box-shadow: 0 0 10px rgba(0,229,160,0.2); }
+  .cat-btn.selected[data-cat="health"]  { background: var(--health-bg); border-color: var(--health-acc); box-shadow: 0 0 10px rgba(224,64,251,0.2); }
+  .cat-btn.selected[data-cat="dinner"]  { background: var(--dinner-bg); border-color: var(--dinner-acc); box-shadow: 0 0 10px rgba(255,179,71,0.2); }
+
+  /* ── TEXT INPUT ── */
+  .msg-wrap { margin-bottom: 20px; }
+
+  .msg-input {
+    width: 100%;
+    background: var(--panel);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    padding: 14px;
+    resize: none;
+    height: 88px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .msg-input:focus {
+    border-color: var(--pink);
+    box-shadow: 0 0 12px rgba(255,45,155,0.2);
+  }
+
+  .msg-input::placeholder { color: var(--muted); }
+
+  .char-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px; color: var(--muted); letter-spacing: 1px;
+    text-align: right; margin-top: 6px;
+  }
+
+  /* ── URGENT TOGGLE ── */
+  .urgent-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    background: var(--panel);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .urgent-row.on {
+    border-color: var(--amber);
+    background: rgba(255,179,71,0.08);
+    box-shadow: 0 0 12px rgba(255,179,71,0.15);
+  }
+
+  .urgent-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px; letter-spacing: 2px; color: var(--muted);
+  }
+
+  .urgent-row.on .urgent-label { color: var(--amber); }
+
+  .toggle-pill {
+    width: 44px; height: 24px;
+    background: var(--border);
+    border-radius: 12px; position: relative;
+    transition: background 0.2s;
+  }
+
+  .toggle-pill::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 18px; height: 18px;
+    background: var(--muted);
+    border-radius: 50%;
+    transition: all 0.2s;
+  }
+
+  .urgent-row.on .toggle-pill { background: rgba(255,179,71,0.3); }
+  .urgent-row.on .toggle-pill::after { left: 23px; background: var(--amber); }
+
+  /* ── POST BUTTON ── */
+  .post-btn {
+    width: 100%;
+    padding: 18px;
+    background: var(--pink);
+    color: #1a0a2e;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900; font-size: 18px; letter-spacing: 5px;
+    border: none; border-radius: 8px; cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 0 24px rgba(255,45,155,0.4);
+    margin-bottom: 28px;
+  }
+
+  .post-btn:active { transform: scale(0.97); opacity: 0.85; }
+  .post-btn:disabled {
+    background: var(--border); color: var(--muted);
+    cursor: not-allowed; box-shadow: none;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; gap: 12px;
+    padding: 0 20px; margin-bottom: 16px;
+  }
+
+  .divider-line { flex: 1; height: 1px; background: var(--border); }
+  .divider-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px; letter-spacing: 3px; color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* ── ITEM LIST ── */
+  .item-list {
+    position: relative; z-index: 1;
+    padding: 0 20px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+
+  .item-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 12px 12px 16px;
+    display: flex; align-items: center; gap: 10px;
+    position: relative; overflow: hidden;
+  }
+
+  .item-card::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  }
+
+  .item-card.cat-school::before { background: var(--school-acc); }
+  .item-card.cat-chores::before { background: var(--chores-acc); }
+  .item-card.cat-health::before { background: var(--health-acc); }
+  .item-card.cat-dinner::before { background: var(--dinner-acc); }
+  .item-card.done-card { opacity: 0.38; }
+
+  .item-who {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700; font-size: 11px;
+    letter-spacing: 1px; min-width: 46px;
+  }
+
+  .item-who.who-ALL    { color: var(--all); }
+  .item-who.who-Kacey  { color: var(--kacey); }
+  .item-who.who-Matt   { color: var(--matt); }
+  .item-who.who-Emery  { color: var(--emery); }
+  .item-who.who-Miriam { color: var(--miriam); }
+  .item-who.who-Noel   { color: var(--noel); }
+
+  .item-text { flex: 1; font-size: 13px; line-height: 1.3; }
+  .item-text.strikethrough { text-decoration: line-through; color: var(--muted); }
+
+  .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+  .action-btn {
+    width: 30px; height: 30px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 4px; color: var(--muted);
+    font-size: 13px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .action-btn.done-btn:active { border-color: var(--teal); color: var(--teal); }
+  .action-btn.del-btn:active  { border-color: var(--coral); color: var(--coral); }
+
+  .empty-list {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; color: var(--muted);
+    letter-spacing: 2px; text-align: center; padding: 24px;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--pink); color: #1a0a2e;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700; font-size: 11px; letter-spacing: 3px;
+    padding: 12px 24px; border-radius: 6px;
+    box-shadow: 0 0 24px rgba(255,45,155,0.5);
+    transition: transform 0.3s ease; z-index: 100; white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="blobs">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+</div>
+
+<header>
+  <div class="logo">◈ HOUSE BOARD</div>
+  <a class="view-btn" href="index.html">VIEW BOARD →</a>
+</header>
+
+<!-- WHO -->
+<section>
+  <div class="section-label">01 — Who is this for?</div>
+  <div class="who-grid">
+    <button class="who-btn selected" data-who="ALL">ALL<small>everyone</small></button>
+    <button class="who-btn" data-who="Kacey">KACEY<small>you</small></button>
+    <button class="who-btn" data-who="Matt">MATT<small>matty</small></button>
+    <button class="who-btn" data-who="Emery">EMERY</button>
+    <button class="who-btn" data-who="Miriam">MIRIAM</button>
+    <button class="who-btn" data-who="Noel">NOEL</button>
+    <button class="who-btn" data-who="Granny" title="Coming later this year!" style="grid-column: 1 / -1; opacity:0.4; cursor: not-allowed;">GRANNY<small>coming soon ♥</small></button>
+  </div>
+</section>
+
+<!-- CATEGORY -->
+<section>
+  <div class="section-label">02 — Category</div>
+  <div class="cat-grid">
+    <button class="cat-btn selected" data-cat="chores">
+      <span class="cat-name">CHORES</span>
+      <span class="cat-desc">Trash, cleaning, yard, laundry</span>
+    </button>
+    <button class="cat-btn" data-cat="school">
+      <span class="cat-name">SCHOOL</span>
+      <span class="cat-desc">Homework, folders, events</span>
+    </button>
+    <button class="cat-btn" data-cat="health">
+      <span class="cat-name">HEALTH / MEDS</span>
+      <span class="cat-desc">Meds, appointments, doctor</span>
+    </button>
+    <button class="cat-btn" data-cat="dinner">
+      <span class="cat-name">DINNER</span>
+      <span class="cat-desc">What's for dinner tonight</span>
+    </button>
+  </div>
+</section>
+
+<!-- MESSAGE -->
+<section>
+  <div class="section-label">03 — What's the reminder?</div>
+  <div class="msg-wrap">
+    <textarea class="msg-input" id="msg" placeholder="e.g. Band folder — don't leave without it" maxlength="100"></textarea>
+    <div class="char-count"><span id="char-left">100</span> CHARS LEFT</div>
+  </div>
+</section>
+
+<!-- URGENT -->
+<section>
+  <div class="urgent-row" id="urgent-row" onclick="toggleUrgent()">
+    <span class="urgent-label">⚠ &nbsp; MARK AS URGENT — flashes on board</span>
+    <div class="toggle-pill" id="toggle-pill"></div>
+  </div>
+</section>
+
+<!-- POST -->
+<section>
+  <button class="post-btn" id="post-btn" onclick="post()">POST TO BOARD</button>
+</section>
+
+<!-- CURRENT ITEMS -->
+<div class="divider">
+  <div class="divider-line"></div>
+  <div class="divider-text">CURRENT REMINDERS</div>
+  <div class="divider-line"></div>
+</div>
+
+<div class="item-list" id="item-list">
+  <div class="empty-list">CONNECTING...</div>
+</div>
+
+<div class="toast" id="toast">POSTED ✓</div>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, push, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  // ── PASTE YOUR FIREBASE CONFIG HERE ──
+  const firebaseConfig = {
+    apiKey: "AIzaSyDcc6tdEzN7DXxNeH5ibXzCsjq3XXo9RFI",
+    authDomain: "house-board-8675309.firebaseapp.com",
+    databaseURL: "https://house-board-8675309-default-rtdb.firebaseio.com",
+    projectId: "house-board-8675309",
+    storageBucket: "house-board-8675309.firebasestorage.app",
+    messagingSenderId: "287523705989",
+    appId: "1:287523705989:web:d960b9020eb4cd5006c5ec"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const itemsRef = ref(db, 'items');
+
+  // State
+  let selectedWho = 'ALL';
+  let selectedCat = 'chores';
+  let isUrgent = false;
+
+  // WHO
+  document.querySelectorAll('.who-btn').forEach(btn => {
+    if (btn.dataset.who === 'Granny') return; // disabled
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.who-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedWho = btn.dataset.who;
+    });
+  });
+
+  // CAT
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedCat = btn.dataset.cat;
+    });
+  });
+
+  // CHAR COUNT
+  document.getElementById('msg').addEventListener('input', function() {
+    document.getElementById('char-left').textContent = 100 - this.value.length;
+  });
+
+  // URGENT
+  window.toggleUrgent = function() {
+    isUrgent = !isUrgent;
+    document.getElementById('urgent-row').classList.toggle('on', isUrgent);
+  };
+
+  // POST
+  window.post = async function() {
+    const text = document.getElementById('msg').value.trim();
+    if (!text) { document.getElementById('msg').focus(); return; }
+
+    const btn = document.getElementById('post-btn');
+    btn.disabled = true;
+    btn.textContent = 'POSTING...';
+
+    try {
+      await push(itemsRef, {
+        who: selectedWho,
+        cat: selectedCat,
+        text,
+        urgent: isUrgent,
+        done: false,
+        ts: Date.now()
+      });
+
+      document.getElementById('msg').value = '';
+      document.getElementById('char-left').textContent = '100';
+      isUrgent = false;
+      document.getElementById('urgent-row').classList.remove('on');
+      showToast();
+    } catch(e) {
+      alert('Could not post — check your Firebase config.');
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'POST TO BOARD';
+  };
+
+  // MARK DONE / DELETE
+  window.markDone = async function(id, current) {
+    await update(ref(db, `items/${id}`), { done: !current });
+  };
+
+  window.deleteItem = async function(id) {
+    await remove(ref(db, `items/${id}`));
+  };
+
+  // LISTEN
+  onValue(itemsRef, (snapshot) => {
+    const data = snapshot.val() || {};
+    const items = Object.entries(data).map(([id, v]) => ({ id, ...v }));
+    renderList(items);
+  });
+
+  function renderList(items) {
+    const el = document.getElementById('item-list');
+    if (items.length === 0) {
+      el.innerHTML = '<div class="empty-list">NO REMINDERS YET — ADD ONE ABOVE</div>';
+      return;
+    }
+    const sorted = [...items].sort((a,b) => {
+      if (a.done !== b.done) return a.done ? 1 : -1;
+      return b.ts - a.ts;
+    });
+    el.innerHTML = sorted.map(item => `
+      <div class="item-card cat-${item.cat}${item.done ? ' done-card' : ''}">
+        <div class="item-who who-${item.who}">${item.who}</div>
+        <div class="item-text${item.done ? ' strikethrough' : ''}">${item.text}</div>
+        <div class="item-actions">
+          <button class="action-btn done-btn" onclick="markDone('${item.id}', ${item.done})">✓</button>
+          <button class="action-btn del-btn" onclick="deleteItem('${item.id}')">✕</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ENTER to post
+  document.getElementById('msg').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); window.post(); }
+  });
+
+  function showToast() {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+</script>
+</body>
+</html>
